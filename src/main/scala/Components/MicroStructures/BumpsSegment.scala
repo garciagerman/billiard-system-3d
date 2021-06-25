@@ -1,17 +1,17 @@
-package Components
+package Components.MicroStructures
 
-import Components.BumpsSegment.quadraticSolver
+import Components.MicroStructures.BumpsSegment.quadraticSolver
+import Components.Particles.UnitSpeedParticle
 import breeze.linalg._
 
 import scala.math.pow
 
 case class BumpsSegment(center: DenseVector[Double], radius: Double) extends MicroStructureSegment {
 
-  // TODO: move this to a common directory
   case class NoExitVector(s: String)  extends Exception(s)
 
 
-  override def getTimeToCollide(V: Particle) = {
+  override def getTimeToCollide(V: UnitSpeedParticle): Double = {
 
     val a = V.square_norm
     val b = 2 * (V.direction dot (V.origin - center))
@@ -24,13 +24,13 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
   }
 
   // specular reflection
-  override def getExitVector(V:Particle): Particle = {
+  override def getExitVector(V:UnitSpeedParticle): UnitSpeedParticle = {
 
     val t = getTimeToCollide(V)
     // t needs to be nonzero
     require(t > 10e-4)
 
-    val collisionParticle: Particle = new Particle(V.origin, V.origin + (t *:* V.direction))
+    val collisionParticle: UnitSpeedParticle = new UnitSpeedParticle(V.origin, V.origin + (t *:* V.direction))
 
     val tangentPlaneNormal: DenseVector[Double] = (center - collisionParticle.endpoint) /:/ norm(center - collisionParticle.endpoint)
 
@@ -41,7 +41,7 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
     val constant: Double = 2*velocityNormalComp/pow(norm(tangentPlaneNormal), 2)
     val newDir: DenseVector[Double] = constant *:* collisionParticle.direction
 
-    new Particle(collisionParticle.origin, collisionParticle.origin + (1D *:* newDir))
+    new UnitSpeedParticle(collisionParticle.origin, collisionParticle.origin + (1D *:* newDir))
       .unitVector
 
   }
@@ -54,9 +54,10 @@ object BumpsSegment {
 
   def quadraticSolver(a: Double, b: Double, c: Double): Double = {
 
-    import scala.util.Try
     import org.apache.commons.math3.analysis.polynomials.PolynomialFunction
     import org.apache.commons.math3.analysis.solvers.LaguerreSolver
+
+    import scala.util.Try
 
     val polynomial: PolynomialFunction = new PolynomialFunction(Array[Double](c, b, a))
     val laguerreSolver = new LaguerreSolver()
