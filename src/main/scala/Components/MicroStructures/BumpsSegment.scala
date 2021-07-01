@@ -8,13 +8,13 @@ import scala.math.pow
 
 case class BumpsSegment(center: DenseVector[Double], radius: Double) extends MicroStructureSegment {
 
-  case class NoExitVector(s: String)  extends Exception(s)
+  case class NoExitVector(s: String) extends Exception(s)
 
 
   override def getTimeToCollide(V: UnitSpeedParticle): Double = {
 
-    val a = V.square_norm
-    val b = 2 * (V.direction dot (V.origin - center))
+    val a = V.pathLength
+    val b = 2 * (V.pathDirection dot (V.origin - center))
     val c = pow(norm(V.origin - center), 2) - pow(radius, 2)
 
     val t = quadraticSolver(a, b, c)
@@ -30,19 +30,19 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
     // t needs to be nonzero
     require(t > 10e-4)
 
-    val collisionParticle: UnitSpeedParticle = new UnitSpeedParticle(V.origin, V.origin + (t *:* V.direction))
+    val collisionParticle: UnitSpeedParticle = new UnitSpeedParticle(V.origin, V.origin + (t *:* V.pathDirection))
 
     val tangentPlaneNormal: DenseVector[Double] = (center - collisionParticle.endpoint) /:/ norm(center - collisionParticle.endpoint)
 
-    val velocityNormalComp: Double = tangentPlaneNormal dot collisionParticle.direction
+    val velocityNormalComp: Double = tangentPlaneNormal dot collisionParticle.pathDirection
 
     if (velocityNormalComp > 0) throw NoExitVector("")
 
     val constant: Double = 2*velocityNormalComp/pow(norm(tangentPlaneNormal), 2)
-    val newDir: DenseVector[Double] = constant *:* collisionParticle.direction
+    val newDir: DenseVector[Double] = constant *:* collisionParticle.pathDirection
 
     new UnitSpeedParticle(collisionParticle.origin, collisionParticle.origin + (1D *:* newDir))
-      .unitVector
+      .scaledPathToLength(1D)
 
   }
 

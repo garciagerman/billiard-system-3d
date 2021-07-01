@@ -26,7 +26,7 @@ case class PlaneSegment(
     // time to collision is t in: [Q1|Q2|-DIRECTION] * [m, n, t]^T = [ORIGIN - CORNER_A]
     // set: j = [Q1|Q2|-DIRECTION]  and let k denote its inverse
     val O_rhs = V.origin - corner_a
-    val j = DenseMatrix(Q1, Q2, -1D*V.direction)
+    val j = DenseMatrix(Q1, Q2, -1D*V.pathDirection)
 
     Try(inv(j)) match {
       // no collision: return 0
