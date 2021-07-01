@@ -35,7 +35,7 @@ class UnitSpeedParticleTests extends FunSuite {
     assert(withinTolerance(actualDotOfDirections, expectedDotOfDirections))
   }
 
-  test("unit length path of particle") {
+  test("scale length path of particle to unit") {
 
     val particle = UnitSpeedParticle(DenseVector(2D,2D,2D), DenseVector(1D,2D,3D))
 
@@ -56,9 +56,6 @@ class UnitSpeedParticleTests extends FunSuite {
 
   test("scale length when throwing exception") {
     val particle = UnitSpeedParticle(DenseVector(0D, 0D, 0D))
-
-    println(particle.pathDirection)
-    println(norm(particle.pathDirection))
 
     assertThrows[UnableToScalePath](particle.scaledPathToLength(47D))
   }
