@@ -11,7 +11,7 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
   case class NoExitVector(s: String) extends Exception(s)
 
 
-  override def getTimeToCollide(V: UnitSpeedParticle): Double = {
+  override def getTimeToCollision(V: UnitSpeedParticle): Double = {
 
     val a = V.pathLength
     val b = 2 * (V.pathDirection dot (V.origin - center))
@@ -24,10 +24,10 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
   }
 
   // specular reflection
-  override def getExitVector(V:UnitSpeedParticle): UnitSpeedParticle = {
+  override def getPostCollisionPath(V:UnitSpeedParticle, t: Double): UnitSpeedParticle = {
 
-    val t = getTimeToCollide(V)
-    // t needs to be nonzero
+    val t = getTimeToCollision(V)
+    // timeToCollision needs to be nonzero
     require(t > 10e-4)
 
     val collisionParticle: UnitSpeedParticle = new UnitSpeedParticle(V.origin, V.origin + (t *:* V.pathDirection))

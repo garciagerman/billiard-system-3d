@@ -2,7 +2,7 @@ package Components.Particles
 
 import breeze.linalg._
 import scala.util.Try
-import Components.Utilities.Helpers._
+import Common.Helpers._
 
 case class UnitSpeedParticle(origin: DenseVector[Double], endpoint: DenseVector[Double]) {
   import UnitSpeedParticle._

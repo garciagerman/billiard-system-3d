@@ -1,4 +1,4 @@
-package Components.Utilities
+package Common
 
 object Helpers {
 

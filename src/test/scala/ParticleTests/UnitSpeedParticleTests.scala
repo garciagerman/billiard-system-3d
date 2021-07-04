@@ -2,7 +2,7 @@ package ParticleTests
 
 import org.scalatest._
 import Components.Particles.UnitSpeedParticle, UnitSpeedParticle._
-import Components.Utilities.Helpers.withinTolerance
+import Common.Helpers.withinTolerance
 import breeze.linalg._
 import math.sqrt
 
