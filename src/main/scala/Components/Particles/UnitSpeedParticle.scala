@@ -12,6 +12,10 @@ case class UnitSpeedParticle(origin: DenseVector[Double], endpoint: DenseVector[
 
   def dotOfDirections(W: UnitSpeedParticle): Double = pathDirection dot W.pathDirection
 
+  def moveAlongPath(timeToMove: Double): UnitSpeedParticle = {
+    new UnitSpeedParticle(origin, origin + (timeToMove *:* pathDirection ))
+  }
+
   def scaledPathToLength(newLength: Double): UnitSpeedParticle = {
     val divideByPathLen = Try(newLength/pathLength)
 
@@ -20,13 +24,18 @@ case class UnitSpeedParticle(origin: DenseVector[Double], endpoint: DenseVector[
     }
     val timeToNewLength: Double = divideByPathLen.get
 
-    new UnitSpeedParticle(origin, origin + (timeToNewLength *:* pathDirection))
+    //new UnitSpeedParticle(origin, origin + (timeToNewLength *:* pathDirection))
+    moveAlongPath(timeToNewLength)
   }
 }
 
 object UnitSpeedParticle {
-  def apply[T: Numeric](W: DenseVector[T]): UnitSpeedParticle = new UnitSpeedParticle(DenseVector.zeros[Double](3), W.map(_.asInstanceOf[Double]))
-  def apply[T: Numeric](V: DenseVector[T], W: DenseVector[T]): UnitSpeedParticle = UnitSpeedParticle(V.map(_.asInstanceOf[Double]), W.map(_.asInstanceOf[Double]))
+  def apply[T: Numeric](endpoint: DenseVector[T]): UnitSpeedParticle = {
+    UnitSpeedParticle(DenseVector.zeros[Double](3), endpoint.map(_.asInstanceOf[Double]))
+  }
 
+  def apply[T: Numeric](origin: DenseVector[T], endpoint: DenseVector[T]): UnitSpeedParticle = {
+    UnitSpeedParticle(origin.map(_.asInstanceOf[Double]), endpoint.map(_.asInstanceOf[Double]))
+  }
   case class UnableToScalePath(s: String) extends Exception(s)
 }

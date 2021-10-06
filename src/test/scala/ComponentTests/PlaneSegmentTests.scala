@@ -1,10 +1,11 @@
 package ComponentTests
 
-import org.scalatest._
-import Components.MicroStructures.PlaneSegment._
-import Common.Helpers.withinTolerance
-import breeze.linalg._
 import math.sqrt
+import breeze.linalg._
+import org.scalatest._
+import Common.Helpers.withinTolerance
+import Components.Particles.UnitSpeedParticle
+import Components.MicroStructures.PlaneSegment, PlaneSegment._
 
 class PlaneSegmentTests extends FunSuite {
 
@@ -45,6 +46,31 @@ class PlaneSegmentTests extends FunSuite {
 
     assert(actualMin == expectedMin)
     assert(actualMax == expectedMax)
+  }
+
+  test ("time to collision") {
+    val segment = PlaneSegment(
+      DenseVector(0D, 0D, 0D),
+      DenseVector(0D, 1D, 0D),
+      DenseVector(0D, 1D, 1D),
+      DenseVector(0D, 0D, 1D),
+      1D
+    )
+
+    val initPath = UnitSpeedParticle(
+      origin = DenseVector(0.5D, 0.5D, 0.5D),
+      endpoint = DenseVector(0.25D, 0.5D, 0.5D)
+    )
+
+    // answer t = 2
+    val timeToCollide = segment.getTimeToCollision(initPath)
+    println(s"time to collide $timeToCollide")
+
+    println(s"collision path start ${initPath.moveAlongPath(timeToCollide).origin}")
+    println(s"collision path end ${initPath.moveAlongPath(timeToCollide).endpoint}")
+
+    println(s"in plane ${segment.pathEndpointIsInPlane(initPath.moveAlongPath(timeToCollide))}")
+
   }
 
 }

@@ -7,22 +7,25 @@ import breeze.linalg._
 import scala.util.Try
 
 case class PlaneSegment(
-                         corner_a: DenseVector[Double],
-                         corner_b: DenseVector[Double],
-                         corner_c: DenseVector[Double],
-                         corner_d: DenseVector[Double],
+                         pointO: DenseVector[Double],
+                         pointP: DenseVector[Double],
+                         pointQ: DenseVector[Double],
+                         pointR: DenseVector[Double],
                          billiardCellLength: Double
                        ) extends MicroStructureSegment {
   import PlaneSegment._
 
-  val planeUnitNormal: DenseVector[Double] = cross(corner_b - corner_a, corner_c - corner_b)
+  private val PQ = pointQ - pointP
+  private val PR = pointR - pointP
+  private val QR = pointR - pointQ
+  val normalVector: DenseVector[Double] = cross(PQ, PR)
 
-  val constantDim: Int = idxOfConstantDim(corner_a, corner_b, corner_c, corner_d)
+  val constantDim: Int = idxOfConstantDim(pointO, pointP, pointQ, pointR)
 
   // max min xyz in plane
-  val (minRange, maxRange) = planeMinMax(corner_a, corner_b, corner_c, corner_d)
+  val (minRange, maxRange) = planeMinMax(pointO, pointP, pointQ, pointR)
 
-  private def pathEndpointIsInPlane(p: UnitSpeedParticle): Boolean = {
+  def pathEndpointIsInPlane(p: UnitSpeedParticle): Boolean = {
     val ep = p.endpoint.toArray
     if (
       ep.zip(minRange.toArray).map{case (v, minV) => (minV <= v) || withinTolerance(minV, v)}.reduce(_ && _)
@@ -32,27 +35,17 @@ case class PlaneSegment(
     else false
   }
 
-  override def getTimeToCollision(V: UnitSpeedParticle): Double = {
-    // describe plane as a vector X = CORNER_A + m*Q1 + n*Q2
-    val Q1 = corner_a - corner_b
-    val Q2 = corner_a - corner_c
+  override def getTimeToCollision(path: UnitSpeedParticle): Double = {
+    val tNumerator = normalVector dot (pointP - path.origin)
+    val tDenumerator = normalVector dot path.pathDirection
 
-    // particle described as Y = ORIGIN - timeToCollision*DIRECTION
-    // time to collision is timeToCollision in: [Q1|Q2|-DIRECTION] * [m, n, timeToCollision]^T = [ORIGIN - CORNER_A]
-    // set: j = [Q1|Q2|-DIRECTION]  and let k denote its inverse
-    val O_rhs = V.origin - corner_a
-    val j = DenseMatrix(Q1, Q2, -1D*V.pathDirection)
+    // check for zeroes
+    if (withinTolerance(tDenumerator, 0D) || withinTolerance(tNumerator, 0D)) throw NoValidCollision("No solution for t")
 
-    val invertJ = Try(inv(j))
+    val timeToCollision = tNumerator / tDenumerator
 
-    // check if matrix is invertible
-    if (invertJ.isFailure) throw NoValidCollision("Matrix is not invertible")
-
-    val mntVector = invertJ.get * O_rhs
-    val timeToCollision = mntVector(2)
-
-    // check if timeToCollision is positive
-    if (withinTolerance(timeToCollision, 0D) || timeToCollision <= 0) throw NoValidCollision("Invalid collision time")
+    // assure t is positive
+    if (timeToCollision < 0) throw NoValidCollision("Collision time is not positive")
 
     timeToCollision
   }
@@ -62,14 +55,14 @@ case class PlaneSegment(
   override def getPostCollisionPath(
                                      V: UnitSpeedParticle,
                                      timeToCollision: Double): UnitSpeedParticle = {
-    val pathO = V.origin
-    val pathE = V.endpoint
+    val pathOrigin = V.origin
+    val pathEnd = V.endpoint
 
-    pathO.update(constantDim, pathO(constantDim) - billiardCellLength)
-    pathE.update(constantDim, pathE(constantDim) - billiardCellLength)
+    pathOrigin.update(constantDim, pathOrigin(constantDim) - billiardCellLength)
+    pathEnd.update(constantDim, pathEnd(constantDim) - billiardCellLength)
 
     // TODO: this can be generalized
-    val pathToCollision = new UnitSpeedParticle(origin = pathO, endpoint = pathE)
+    val pathToCollision = new UnitSpeedParticle(origin = pathOrigin, endpoint = pathEnd)
 
     if (!pathEndpointIsInPlane(pathToCollision)) throw NoValidCollision("Collision point not in plane")
 

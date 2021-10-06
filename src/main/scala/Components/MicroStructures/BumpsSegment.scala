@@ -11,11 +11,11 @@ case class BumpsSegment(center: DenseVector[Double], radius: Double) extends Mic
   case class NoExitVector(s: String) extends Exception(s)
 
 
-  override def getTimeToCollision(V: UnitSpeedParticle): Double = {
+  override def getTimeToCollision(path: UnitSpeedParticle): Double = {
 
-    val a = V.pathLength
-    val b = 2 * (V.pathDirection dot (V.origin - center))
-    val c = pow(norm(V.origin - center), 2) - pow(radius, 2)
+    val a = path.pathLength
+    val b = 2 * (path.pathDirection dot (path.origin - center))
+    val c = pow(norm(path.origin - center), 2) - pow(radius, 2)
 
     val t = quadraticSolver(a, b, c)
 
