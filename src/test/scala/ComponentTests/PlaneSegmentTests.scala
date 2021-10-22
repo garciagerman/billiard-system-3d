@@ -3,7 +3,7 @@ package ComponentTests
 import math.sqrt
 import breeze.linalg._
 import org.scalatest._
-import Common.Helpers.{vectorWithinTolerance, withinTolerance}
+import Common.Helpers._
 import Components.Particles.UnitSpeedParticle
 import Components.MicroStructures.PlaneSegment
 import PlaneSegment._
@@ -45,8 +45,8 @@ class PlaneSegmentTests extends FunSuite {
     val expectedMin = DenseVector(0D, 0D, 1D)
     val expectedMax = DenseVector(4D, 2D, 3D)
 
-    assert(actualMin == expectedMin)
-    assert(actualMax == expectedMax)
+    assert(vectorWithinTolerance(actualMin, expectedMin))
+    assert(vectorWithinTolerance(actualMax, expectedMax))
   }
 
   test ("CollisionTime - time to collision") {
@@ -58,15 +58,15 @@ class PlaneSegmentTests extends FunSuite {
       1D
     )
 
-    val initPath = UnitSpeedParticle(
+    val incomingPath = UnitSpeedParticle(
       origin = DenseVector(0.5D, 0.5D, 0.5D),
       endpoint = DenseVector(0.25D, 0.5D, 0.5D)
     )
 
     val expectedTimeToCollide = 2.0
-    val actualTimeToCollide = segment.getTimeToCollision(initPath)
+    val actualTimeToCollide = segment.getTimeToCollision(incomingPath)
 
-    assert(actualTimeToCollide == expectedTimeToCollide )
+    assert(withinTolerance(actualTimeToCollide, expectedTimeToCollide ))
   }
 
   test ("PostCollisionVector - simple path") {
@@ -90,7 +90,7 @@ class PlaneSegmentTests extends FunSuite {
 
     val expectedPostCollisionOrigin = DenseVector(1.0D, 0.5D, 0.5D)
 
-    assert(actualPostCollisionOrigin == expectedPostCollisionOrigin)
+    assert(vectorWithinTolerance(actualPostCollisionOrigin, expectedPostCollisionOrigin))
   }
 
 
@@ -115,7 +115,7 @@ class PlaneSegmentTests extends FunSuite {
 
     val expectedPostCollisionOrigin = DenseVector(0D, 0.5D, 0.5D)
 
-    assert(actualPostCollisionOrigin == expectedPostCollisionOrigin)
+    assert(vectorWithinTolerance(actualPostCollisionOrigin, expectedPostCollisionOrigin))
   }
 
   test ("PostCollisionVector - complex path") {

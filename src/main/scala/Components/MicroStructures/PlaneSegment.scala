@@ -4,8 +4,6 @@ import Components.Particles.UnitSpeedParticle
 import Common.Helpers._
 import breeze.linalg._
 
-import scala.util.Try
-
 /**
  * A plane segment defined by the area outlined by four points O, P, Q, R.
  *
@@ -41,12 +39,12 @@ case class PlaneSegment(
    * @param path an incoming particle path
    * @return boolean if the endpoint of the path is within the segment
    */
-  def pathEndpointIsInPlane(path: UnitSpeedParticle): Boolean = {
-    val ep = path.endpoint.toArray
+  override def pathEndpointInSegment(path: UnitSpeedParticle): Boolean = {
+    val endpoint = path.endpoint.toArray
     if (
-      ep.zip(minRange.toArray).map{case (v, minV) => (minV <= v) || withinTolerance(minV, v)}.reduce(_ && _)
+      endpoint.zip(minRange.toArray).map{case (v, minV) => (minV <= v) || withinTolerance(minV, v)}.reduce(_ && _)
         &&
-      ep.zip(maxRange.toArray).map{case (v, maxV) => (v <= maxV) || withinTolerance(maxV, v)}.reduce(_ && _)
+      endpoint.zip(maxRange.toArray).map{case (v, maxV) => (v <= maxV) || withinTolerance(maxV, v)}.reduce(_ && _)
     ) true
     else false
   }
@@ -82,7 +80,7 @@ case class PlaneSegment(
 
     val pathAtCollision = path.moveAlongPath(timeToCollision)
 
-    if (!pathEndpointIsInPlane(pathAtCollision)) throw NoValidCollision("Collision point not in plane")
+    if (!pathEndpointInSegment(pathAtCollision)) throw NoValidCollision("Collision point not in plane")
 
     val collisionPoint = pathAtCollision.endpoint.copy
     val directionAtCollision = pathAtCollision.pathDirection.copy
@@ -91,7 +89,7 @@ case class PlaneSegment(
     val postCollisionVectorEndpoint = collisionPoint + (0.5 *:* directionAtCollision)
 
     val pathToCollision = new UnitSpeedParticle(origin = collisionPoint, endpoint = postCollisionVectorEndpoint)
-      .scaledPathToLength(0.1D)
+      //.scaledPathToLength(0.1D)
 
     pathToCollision
   }
