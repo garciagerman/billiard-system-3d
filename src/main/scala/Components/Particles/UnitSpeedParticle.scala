@@ -4,18 +4,34 @@ import breeze.linalg._
 import scala.util.Try
 import Common.Helpers._
 
+/**
+ * A particle path defined by an origin and an endpoint, i.e. a mathematical vector.
+ */
 case class UnitSpeedParticle(origin: DenseVector[Double], endpoint: DenseVector[Double]) {
   import UnitSpeedParticle._
 
   val pathDirection: DenseVector[Double] = endpoint - origin
   val pathLength: Double = norm(pathDirection)
 
+  // Helper function
   def dotOfDirections(W: UnitSpeedParticle): Double = pathDirection dot W.pathDirection
 
+  /**
+   * Keeps origin, but shifts the endpoint of a particle specified by t along the path of direction
+   * i.e. new endpoint is (Origin + t*Direction)
+   * @param timeToMove
+   * @return a new particle path along the direction of the input path
+   */
   def moveAlongPath(timeToMove: Double): UnitSpeedParticle = {
-    new UnitSpeedParticle(origin, origin + (timeToMove *:* pathDirection ))
+    val originCopy = origin.copy
+    new UnitSpeedParticle(originCopy, originCopy + (timeToMove *:* pathDirection ))
   }
 
+  /**
+   * Keeps origin but the path is scaled to a specified length
+   * @param newLength
+   * @return a new particle path with specified length
+   */
   def scaledPathToLength(newLength: Double): UnitSpeedParticle = {
     val divideByPathLen = Try(newLength/pathLength)
 
