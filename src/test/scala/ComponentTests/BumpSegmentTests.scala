@@ -1,11 +1,10 @@
 package ComponentTests
 
 import org.scalatest._
-import Components.MicroStructures.BumpSegment
-import BumpSegment._
-import Components.Particles.UnitSpeedParticle
 import Common.Helpers._
 import breeze.linalg.DenseVector
+import Components.MicroStructures.BumpSegment
+import Components.Particles.UnitSpeedParticle
 
 class BumpSegmentTests extends FunSuite {
 
@@ -35,8 +34,9 @@ class BumpSegmentTests extends FunSuite {
       origin = DenseVector(0D, 1D, 2D),
       endpoint = DenseVector(0D, 1D, 1D)
     )
+    val collisionPath = incomingPath.moveAlongPath(2)
 
-    val actualPostCollisionPath = bump.getPostCollisionPath(incomingPath, 2)
+    val actualPostCollisionPath = bump.getPostCollisionPath(collisionPath)
 
     val expectedPostCollisionPath = UnitSpeedParticle(
       origin = DenseVector(0D, 1D, 0D),

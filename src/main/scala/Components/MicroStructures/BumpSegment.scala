@@ -1,12 +1,10 @@
 package Components.MicroStructures
 
+import scala.math.pow
+import breeze.linalg._
+import Common.Helpers._
 import Components.MicroStructures.BumpSegment.quadraticSolver
 import Components.Particles.UnitSpeedParticle
-import Common.Helpers._
-import Components.MicroStructures.PlaneSegment.NoValidCollision
-import breeze.linalg._
-
-import scala.math.pow
 
 case class BumpSegment(center: DenseVector[Double], radius: Double) extends MicroStructureSegment {
 
@@ -44,18 +42,12 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
    * Uses the Rodrigues formula to rotate incoming particle about the tangent normal
    * See here: https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
    */
-  override def getPostCollisionPath(path: UnitSpeedParticle, timeToCollision: Double): UnitSpeedParticle = {
-
-    val collisionParticlePath = path.moveAlongPath(timeToCollision)
-    if (!pathEndpointInSegment(collisionParticlePath)) throw NoValidCollision("Endpoint not on bump")
+  override def getPostCollisionPath(collisionParticlePath: UnitSpeedParticle): UnitSpeedParticle = {
 
     val reflectedParticlePath = UnitSpeedParticle(
       origin = collisionParticlePath.endpoint,
       endpoint = collisionParticlePath.origin
     )
-//    println(s"collision origin ${reflectedParticlePath.origin}")
-//    println(s"collision end ${reflectedParticlePath.endpoint}")
-//    println(s"collision dir ${reflectedParticlePath.pathDirection}")
 
     val tangentDir = collisionParticlePath.endpoint - center
     println(s"tangent dir $tangentDir")
@@ -76,7 +68,6 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
 
 object BumpSegment {
   case class SpecificationError(s: String) extends Exception(s)
-  case class NoValidCollision(s: String) extends Exception(s)
 
   /**
    * Solves for the quadratic a*x^2 + b*x + c = 0

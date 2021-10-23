@@ -1,10 +1,10 @@
 package ParticleTests
 
-import org.scalatest._
-import Components.Particles.UnitSpeedParticle, UnitSpeedParticle._
-import Common.Helpers.withinTolerance
-import breeze.linalg._
 import math.sqrt
+import breeze.linalg._
+import org.scalatest._
+import Common.Helpers._
+import Components.Particles.UnitSpeedParticle, UnitSpeedParticle._
 
 class UnitSpeedParticleTests extends FunSuite {
 

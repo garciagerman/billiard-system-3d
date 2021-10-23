@@ -10,6 +10,6 @@ trait MicroStructureSegment {
   // verify if point is allowed, e.g. within the domain of the segment
   def pathEndpointInSegment(path: UnitSpeedParticle): Boolean
 
-  // particle path after collision
-  def getPostCollisionPath(V: UnitSpeedParticle, t: Double): UnitSpeedParticle
+  // particle path after collision with segment
+  def getPostCollisionPath(path: UnitSpeedParticle): UnitSpeedParticle
 }

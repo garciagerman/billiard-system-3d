@@ -1,8 +1,8 @@
 package Components.MicroStructures
 
-import Components.Particles.UnitSpeedParticle
-import Common.Helpers._
 import breeze.linalg._
+import Common.Helpers._
+import Components.Particles.UnitSpeedParticle
 
 /**
  * A plane segment defined by the area outlined by four points O, P, Q, R.
@@ -33,6 +33,15 @@ case class PlaneSegment(
 
   // max min xyz in plane
   val (minRange, maxRange) = planeMinMax(pointO, pointP, pointQ, pointR)
+
+  // generate a random point on the plane segment
+  def generateRandomPoint(): DenseVector[Double] = {
+    import scala.util.Random
+
+    val randoms: Seq[Double] = for (i <- minRange.toArray.indices) yield Random.nextDouble() * (maxRange(i) - minRange(i)) + minRange(i)
+
+    DenseVector(randoms:_*)
+  }
 
   /**
    * Helper function to double-check collision points
@@ -76,11 +85,7 @@ case class PlaneSegment(
    * @param timeToCollision the time-to-collision with segment
    * @return the post-collision vector (as a particle object)
    */
-  override def getPostCollisionPath(path: UnitSpeedParticle, timeToCollision: Double): UnitSpeedParticle = {
-
-    val pathAtCollision = path.moveAlongPath(timeToCollision)
-
-    if (!pathEndpointInSegment(pathAtCollision)) throw NoValidCollision("Collision point not in plane")
+  override def getPostCollisionPath(pathAtCollision: UnitSpeedParticle): UnitSpeedParticle = {
 
     val collisionPoint = pathAtCollision.endpoint.copy
     val directionAtCollision = pathAtCollision.pathDirection.copy
@@ -89,7 +94,7 @@ case class PlaneSegment(
     val postCollisionVectorEndpoint = collisionPoint + (0.5 *:* directionAtCollision)
 
     val pathToCollision = new UnitSpeedParticle(origin = collisionPoint, endpoint = postCollisionVectorEndpoint)
-      //.scaledPathToLength(0.1D)
+      .scaledPathToLength(0.1D)
 
     pathToCollision
   }
@@ -98,7 +103,6 @@ case class PlaneSegment(
 
 object PlaneSegment {
   case class SpecificationError(s: String) extends Exception(s)
-  case class NoValidCollision(s: String) extends Exception(s)
 
   /**
    * Finds the index where the plane segment is constant

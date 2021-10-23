@@ -5,8 +5,7 @@ import breeze.linalg._
 import org.scalatest._
 import Common.Helpers._
 import Components.Particles.UnitSpeedParticle
-import Components.MicroStructures.PlaneSegment
-import PlaneSegment._
+import Components.MicroStructures.PlaneSegment, PlaneSegment._
 
 class PlaneSegmentTests extends FunSuite {
 
@@ -84,8 +83,10 @@ class PlaneSegmentTests extends FunSuite {
       endpoint = DenseVector(0.25D, 0.5D, 0.5D)
     )
 
+    val collisionPath = incomingParticle.moveAlongPath(segment.getTimeToCollision(incomingParticle))
+
     val actualPostCollisionOrigin = segment
-      .getPostCollisionPath(incomingParticle, 2.0)
+      .getPostCollisionPath(collisionPath)
       .origin
 
     val expectedPostCollisionOrigin = DenseVector(1.0D, 0.5D, 0.5D)
@@ -109,8 +110,10 @@ class PlaneSegmentTests extends FunSuite {
       endpoint = DenseVector(0.75D, 0.5D, 0.5D)
     )
 
+    val collisionPath = incomingParticle.moveAlongPath(segment.getTimeToCollision(incomingParticle))
+
     val actualPostCollisionOrigin = segment
-      .getPostCollisionPath(incomingParticle, segment.getTimeToCollision(incomingParticle))
+      .getPostCollisionPath(collisionPath)
       .origin
 
     val expectedPostCollisionOrigin = DenseVector(0D, 0.5D, 0.5D)
@@ -132,15 +135,14 @@ class PlaneSegmentTests extends FunSuite {
       origin = DenseVector(0.9D, 0.5D, 0.5D),
       endpoint = DenseVector(0.45D, 0.4D, 0.3D)
     )
+    val collisionPath = incomingParticle.moveAlongPath(segment.getTimeToCollision(incomingParticle))
 
     val actualPostCollisionOrigin = segment
-      .getPostCollisionPath(incomingParticle, segment.getTimeToCollision(incomingParticle))
+      .getPostCollisionPath(collisionPath)
       .origin
 
     val expectedPostCollisionOrigin = DenseVector(1D, 0.3D, 0.1D)
 
     assert(vectorWithinTolerance(actualPostCollisionOrigin, expectedPostCollisionOrigin))
   }
-
-
 }
