@@ -50,7 +50,6 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
     )
 
     val tangentDir = collisionParticlePath.endpoint - center
-    println(s"tangent dir $tangentDir")
 
     val rotatedEndPoint = {
       val rotationAngle = math.Pi

@@ -3,17 +3,17 @@ package Components.BilliardCells
 import breeze.linalg._
 import scala.util.control.Breaks._
 import scala.util.{Failure, Success, Try}
+import Common.Helpers._
 import Components.MicroStructures._
 import Components.Particles.UnitSpeedParticle
-import Components.BilliardCells.FourBumpsCell.{SimulationParameters, SpecificationException}
 
-case class FourBumpsCell(
-                        bumpSegments: List[BumpSegment],
-                        wallSegments: List[PlaneSegment],
-                        entryAndExitSegment: PlaneSegment
+case class GeneralBilliardCell(
+                                bumpSegments: List[BumpSegment],
+                                wallSegments: List[PlaneSegment],
+                                entryAndExitSegment: PlaneSegment
                         ) {
 
-  import FourBumpsCell._
+  import GeneralBilliardCell._
 
   val cellSegments: List[(MicroStructureSegment, Int)] = {
     List(entryAndExitSegment) ++ wallSegments ++ bumpSegments
@@ -32,7 +32,7 @@ case class FourBumpsCell(
       case (segment, segmentIndex) =>
         val (timeToCollision, collisionPath): (Double, UnitSpeedParticle) = Try(segment.getTimeToCollision(entryPath)) match {
           case Success(tempTime) =>
-            if (tempTime > 0) {
+            if ((tempTime > 0D) && !withinTolerance(tempTime, 0D, precision = 1e-3)){
               val tempCollisionPath = entryPath.moveAlongPath(tempTime)
               if (segment.pathEndpointInSegment(tempCollisionPath)) (tempTime, tempCollisionPath) // valid collision
               else (dummyTime, dummyPath) // if collision point is not in segment, not a valid collision
@@ -45,8 +45,8 @@ case class FourBumpsCell(
 
         SimulationParameters(segmentIndex, segment, timeToCollision, collisionPath)
     }
-      .filter(_.collisionTIme > 0)
-      .sortWith(_.collisionTIme < _.collisionTIme)
+      .filter(params => (params.collisionTime > 0D) && (!withinTolerance(params.collisionTime, 0D, precision = 1e-3)))
+      .sortWith(_.collisionTime < _.collisionTime)
 
     allSimulationParameters
   }
@@ -89,7 +89,11 @@ case class FourBumpsCell(
         }
         // otherwise reset incoming particle path
         else {
-          val nextParams: SimulationParameters = singleCollisionGetter(currentParams.collisionPath)
+          // get the post-collision path
+          val nextPath = currentParams.segment.getPostCollisionPath(currentParams.collisionPath)
+
+          // get the candidate segments for the post-collision path
+          val nextParams: SimulationParameters = singleCollisionGetter(nextPath)
           parameterStack.append(nextParams)
         }
 
@@ -103,10 +107,8 @@ case class FourBumpsCell(
     exitPathStack.pop()
   }
 
-  def singleParticleSimulation(maxIterations: Int = 10000): Unit = {
-    val segmentCollisionIndexes: Seq[Int] = 0 to maxIterations
-    val segmentCollisionPaths = scala.collection.mutable.ArrayBuffer[UnitSpeedParticle]()
-
+  def singleParticleSimulation(maxIterations: Int = 10000): UnitSpeedParticle = {
+    // initiate a random entry vector
     val entryPathOrigin: DenseVector[Double] = entryAndExitSegment.generateRandomPoint()
     val entryPathDirection: DenseVector[Double] = randomSampleEnteringDirections
 
@@ -116,16 +118,18 @@ case class FourBumpsCell(
     )
 
     // return the path of the particle exiting the billiard cell
-    getExitPath(incomingParticlePath, maxIterations)
+    val result: UnitSpeedParticle = getExitPath(incomingParticlePath, maxIterations)
+
+    result
   }
 }
 
-object FourBumpsCell {
+object GeneralBilliardCell {
   case class SimulationParameters(
-                                 segmentIndex: Int,
-                                 segment: MicroStructureSegment,
-                                 collisionTIme: Double,
-                                 collisionPath: UnitSpeedParticle
+                                   segmentIndex: Int,
+                                   segment: MicroStructureSegment,
+                                   collisionTime: Double,
+                                   collisionPath: UnitSpeedParticle
                                  )
 
   case class SpecificationException(s: String) extends Exception(s)

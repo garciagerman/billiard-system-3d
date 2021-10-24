@@ -43,6 +43,15 @@ case class UnitSpeedParticle(origin: DenseVector[Double], endpoint: DenseVector[
     //new UnitSpeedParticle(origin, origin + (timeToNewLength *:* pathDirection))
     moveAlongPath(timeToNewLength)
   }
+
+  /**
+   * Returns the angle between W and the direction of the particle path
+   */
+  def angleBetweenVectors(W: DenseVector[Double]): Double = {
+    val cosineSimilarity = (pathDirection dot W) / (norm(pathDirection) * norm(W))
+
+    math.acos(cosineSimilarity)
+  }
 }
 
 object UnitSpeedParticle {
