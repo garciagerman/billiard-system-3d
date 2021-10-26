@@ -3,9 +3,9 @@ package ComponentTests
 import math.sqrt
 import breeze.linalg._
 import org.scalatest._
-import Common.Helpers._
-import Components.Particles.UnitSpeedParticle
-import Components.MicroStructures.PlaneSegment, PlaneSegment._
+import Common.Utility._
+import BilliardCellComponents.Particles.UnitSpeedParticle
+import BilliardCellComponents.MicroStructures.PlaneSegment, PlaneSegment._
 
 class PlaneSegmentTests extends FunSuite {
 

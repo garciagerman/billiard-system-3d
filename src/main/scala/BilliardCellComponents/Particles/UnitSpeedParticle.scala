@@ -1,8 +1,8 @@
-package Components.Particles
+package BilliardCellComponents.Particles
 
 import breeze.linalg._
 import scala.util.Try
-import Common.Helpers._
+import Common.Utility._
 
 /**
  * A particle path defined by an origin and an endpoint, i.e. a mathematical vector.

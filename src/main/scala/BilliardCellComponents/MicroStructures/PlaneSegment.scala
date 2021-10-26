@@ -1,8 +1,8 @@
-package Components.MicroStructures
+package BilliardCellComponents.MicroStructures
 
 import breeze.linalg._
-import Common.Helpers._
-import Components.Particles.UnitSpeedParticle
+import Common.Utility._
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 /**
  * A plane segment defined by the area outlined by four points O, P, Q, R.

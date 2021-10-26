@@ -1,10 +1,10 @@
 package ComponentTests
 
 import org.scalatest._
-import Common.Helpers._
+import Common.Utility._
 import breeze.linalg.DenseVector
-import Components.MicroStructures.BumpSegment
-import Components.Particles.UnitSpeedParticle
+import BilliardCellComponents.MicroStructures.BumpSegment
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 class BumpSegmentTests extends FunSuite {
 

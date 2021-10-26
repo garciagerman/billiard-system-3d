@@ -1,10 +1,10 @@
 //
 
 import breeze.linalg.DenseVector
-import Components.BilliardCells._
-import Components.MicroStructures._
+import BilliardCellComponents.BilliardCells._
+import BilliardCellComponents.MicroStructures._
 import scala.util.{Try, Success, Failure}
-import Components.Particles.UnitSpeedParticle
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 val entryExitWall = new PlaneSegment(
   DenseVector(-0.5D, 0.5D, 1D),

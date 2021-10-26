@@ -1,9 +1,9 @@
 package Common
 
 import breeze.linalg._
-import Components.Particles.UnitSpeedParticle
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
-object Helpers {
+object Utility {
 
   case class NoValidCollision(s: String) extends Exception(s)
 

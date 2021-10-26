@@ -1,11 +1,11 @@
-package Components.BilliardCells
+package BilliardCellComponents.BilliardCells
 
 import breeze.linalg._
 import scala.util.control.Breaks._
 import scala.util.{Failure, Success, Try}
-import Common.Helpers._
-import Components.MicroStructures._
-import Components.Particles.UnitSpeedParticle
+import Common.Utility._
+import BilliardCellComponents.MicroStructures._
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 case class GeneralBilliardCell(
                                 bumpSegments: List[BumpSegment],

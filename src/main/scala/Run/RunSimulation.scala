@@ -1,6 +1,6 @@
 package Run
 
-import Components.Particles.UnitSpeedParticle
+import BilliardCellComponents.Particles.UnitSpeedParticle
 import breeze.linalg.DenseVector
 
 

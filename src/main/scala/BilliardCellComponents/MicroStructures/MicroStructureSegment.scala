@@ -1,6 +1,6 @@
-package Components.MicroStructures
+package BilliardCellComponents.MicroStructures
 
-import Components.Particles.UnitSpeedParticle
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 trait MicroStructureSegment {
 

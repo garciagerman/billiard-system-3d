@@ -1,10 +1,10 @@
-package Components.MicroStructures
+package BilliardCellComponents.MicroStructures
 
 import scala.math.pow
 import breeze.linalg._
-import Common.Helpers._
-import Components.MicroStructures.BumpSegment.quadraticSolver
-import Components.Particles.UnitSpeedParticle
+import Common.Utility._
+import BilliardCellComponents.MicroStructures.BumpSegment.quadraticSolver
+import BilliardCellComponents.Particles.UnitSpeedParticle
 
 case class BumpSegment(center: DenseVector[Double], radius: Double) extends MicroStructureSegment {
 

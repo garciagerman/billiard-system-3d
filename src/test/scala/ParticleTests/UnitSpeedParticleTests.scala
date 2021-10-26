@@ -3,8 +3,8 @@ package ParticleTests
 import math.sqrt
 import breeze.linalg._
 import org.scalatest._
-import Common.Helpers._
-import Components.Particles.UnitSpeedParticle, UnitSpeedParticle._
+import Common.Utility._
+import BilliardCellComponents.Particles.UnitSpeedParticle, UnitSpeedParticle._
 
 class UnitSpeedParticleTests extends FunSuite {
 
