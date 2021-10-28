@@ -3,8 +3,8 @@ package BilliardCellComponents.MicroStructures
 import scala.math.pow
 import breeze.linalg._
 import Common.Utility._
-import BilliardCellComponents.MicroStructures.BumpSegment.quadraticSolver
 import BilliardCellComponents.Particles.UnitSpeedParticle
+import Common.Utility
 
 case class BumpSegment(center: DenseVector[Double], radius: Double) extends MicroStructureSegment {
 
@@ -13,9 +13,8 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
   override def pathEndpointInSegment(path: UnitSpeedParticle): Boolean = {
     val endPoint = path.endpoint.copy
 
-    withinTolerance(norm(endPoint -center), radius*radius)
+    withinTolerance(norm(endPoint -center), radius)
   }
-
 
   /**
    * A point X lies on the bump if ||X-C||^2 = R^2, where C is the center and R is the radius
@@ -56,7 +55,7 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
 
       val s1 = math.cos(rotationAngle) *:* reflectedParticlePath.pathDirection
       val s2 = math.sin(rotationAngle) *:* cross(tangentDir, reflectedParticlePath.pathDirection)
-      val s3 = (1 - math.cos(rotationAngle)*(tangentDir dot reflectedParticlePath.pathDirection)) *:* tangentDir
+      val s3 = (1D - math.cos(rotationAngle)*(tangentDir dot reflectedParticlePath.pathDirection)) *:* tangentDir
 
       s1 + s2 + s3
     }
@@ -67,30 +66,4 @@ case class BumpSegment(center: DenseVector[Double], radius: Double) extends Micr
 
 object BumpSegment {
   case class SpecificationError(s: String) extends Exception(s)
-
-  /**
-   * Solves for the quadratic a*x^2 + b*x + c = 0
-   * @return The smallest positive solution
-   */
-  def quadraticSolver(a: Double, b: Double, c: Double): Double = {
-    val determinant = {
-      val d_ =  b*b-4.0*a*c
-      if (withinTolerance(d_, 0D)) 0D else d_
-    }
-
-    if (determinant < 0) throw NoValidCollision("Determinant is negative.")
-
-    val multiplySign = if (b < 0.0) 1 else -1
-
-    val solutionOne: Double = (-b + multiplySign*math.sqrt(determinant)) / (2*a)
-    val solutionTwo: Double = c / (a*solutionOne)
-
-    val validSolutions = Array(solutionOne, solutionTwo)
-      .filter(_ > 0D)
-      .sortWith(_ < _)
-
-    if (validSolutions.isEmpty) throw NoValidCollision("Solutions are not valid.")
-
-    validSolutions.head
-    }
 }

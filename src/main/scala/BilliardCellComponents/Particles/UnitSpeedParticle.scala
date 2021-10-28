@@ -63,4 +63,12 @@ object UnitSpeedParticle {
     UnitSpeedParticle(origin.map(_.asInstanceOf[Double]), endpoint.map(_.asInstanceOf[Double]))
   }
   case class UnableToScalePath(s: String) extends Exception(s)
+
+  // return a unit vector given an origin point and a direction
+  def pathFromOriginAndDirection(origin: DenseVector[Double], direction: DenseVector[Double]): UnitSpeedParticle = {
+    UnitSpeedParticle(
+      origin = origin,
+      endpoint = origin + (0.25D *:* direction)
+    ).scaledPathToLength(1D)
+  }
 }

@@ -4,6 +4,7 @@ import breeze.linalg._
 import scala.util.control.Breaks._
 import scala.util.{Failure, Success, Try}
 import Common.Utility._
+import Common.Global._
 import BilliardCellComponents.MicroStructures._
 import BilliardCellComponents.Particles.UnitSpeedParticle
 
@@ -69,7 +70,7 @@ case class GeneralBilliardCell(
 
     // placeholder for parameters during the simulation
     val parameterStack = scala.collection.mutable.Stack[SimulationParameters](initParams)
-    val exitPathStack =  scala.collection.mutable.Stack[UnitSpeedParticle]()
+    val exitPathStack = scala.collection.mutable.Stack[UnitSpeedParticle]()
 
     breakable {
       while (parameterStack.nonEmpty) {
@@ -107,15 +108,12 @@ case class GeneralBilliardCell(
     exitPathStack.pop()
   }
 
-  def singleParticleSimulation(maxIterations: Int = 10000): UnitSpeedParticle = {
+  def singleParticleSimulation(maxIterations: Int = maxBilliardCellCollisions): UnitSpeedParticle = {
     // initiate a random entry vector
     val entryPathOrigin: DenseVector[Double] = entryAndExitSegment.generateRandomPoint()
     val entryPathDirection: DenseVector[Double] = randomSampleEnteringDirections
 
-    val incomingParticlePath = UnitSpeedParticle(
-      origin = entryPathOrigin,
-      endpoint = entryPathOrigin + (0.25D *:* entryPathDirection)
-    )
+    val incomingParticlePath = UnitSpeedParticle.pathFromOriginAndDirection(entryPathOrigin, entryPathDirection)
 
     // return the path of the particle exiting the billiard cell
     val result: UnitSpeedParticle = getExitPath(incomingParticlePath, maxIterations)
@@ -133,17 +131,4 @@ object GeneralBilliardCell {
                                  )
 
   case class SpecificationException(s: String) extends Exception(s)
-
-  def randomSampleEnteringDirections: DenseVector[Double] = {
-    import scala.util.Random
-
-    val x: Double = Random.between(-1D,1D)
-    val y: Double = Random.between(-1D,1D)
-    val z: Double = Random.between(-1D,0D)
-
-    val entryVector: DenseVector[Double] = DenseVector(x,y,z)
-    val entryVectorNorm: Double = norm(entryVector)
-
-    entryVector /:/ entryVectorNorm
-  }
 }
