@@ -12,7 +12,8 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze" % "1.1",
   "org.scalanlp" %% "breeze-natives" % "1.1",
   "org.scalanlp" %% "breeze-viz" % "1.1",
-
+  // Configuration files
+  "com.typesafe" % "config" % "1.4.1",
   // Unit test library
   "org.scalatest" %% "scalatest" % "3.1.1" % "test"
 )
