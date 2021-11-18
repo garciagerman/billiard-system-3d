@@ -4,12 +4,9 @@ import BilliardCellComponents.BilliardCells.GeneralBilliardCell
 import BilliardCellComponents.MicroStructures.{BumpSegment, PlaneSegment}
 import Common.Global._
 import ChannelSurfaces.CylindricalChannel
-import Common.Global
 import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, linspace}
-
-import java.io.File
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, Future}
 import scala.util.Try
 
 
@@ -23,14 +20,9 @@ object ExitTimeExperiment {
 
   // helper function to save simulation results
   def exportResultsToCSV(simulationData: Array[SimulationResults]): Unit = {
-    import java.time.LocalDateTime
-    import java.time.format.DateTimeFormatter
+    import java.io.File
 
-    val currentDateTime = DateTimeFormatter
-      .ofPattern("yyyy_MM_dd_HH_mm")
-      .format(LocalDateTime.now)
-
-    val fileName: String = s"\\mean_exit_time_results_$currentDateTime.csv"
+    val outputFileName: String = outputPath + s"\\mean_exit_time_results_$currentDateTime.csv"
 
     val dataAsMatrix: DenseMatrix[Double] = DenseMatrix(
       simulationData
@@ -38,7 +30,9 @@ object ExitTimeExperiment {
       :_*
     )
 
-    csvwrite(new File(Global.outputPath + fileName), dataAsMatrix, separator = ',')
+    csvwrite(new File(outputFileName), dataAsMatrix, separator = ',')
+
+    println(s"Data exported to location $outputFileName")
   }
 
   /**
@@ -107,7 +101,7 @@ object ExitTimeExperiment {
   }
 
   // helper function for getting exit time of a single particle in a channel
-  private def getSingleMeanExitTimeFromChannel(channel: CylindricalChannel, numberOfChannelParticles: Int = defaultNumberOfChannelParticles): Double = {
+  private def getSingleMeanExitTimeFromChannel(channel: CylindricalChannel, numberOfChannelParticles: Int = numberOfChannelParticles): Double = {
 
     val rawExitTimes: Array[Double] = {0 until numberOfChannelParticles}
       .map{ _ => Try(channel.simulateParticleExitTime)}
@@ -130,9 +124,9 @@ object ExitTimeExperiment {
    */
   def meanExitTimeForRange(
                             rangeOfChannelHalfLengths: Array[Double],
-                            channelRadius: Double = defaultChannelRadius,
+                            channelRadius: Double = channelRadius,
                             microSurface: GeneralBilliardCell,
-                            numberOfChannelParticles: Int = defaultNumberOfChannelParticles): Array[SimulationResults] = {
+                            numberOfChannelParticles: Int = numberOfChannelParticles): Array[SimulationResults] = {
 
     val futureMeanExitTimes: Array[Future[SimulationResults]] = rangeOfChannelHalfLengths.map {
           halfLen => Future {
@@ -155,21 +149,31 @@ object ExitTimeExperiment {
    * Main Executable to perform a sequence of simulations
    */
   def main(args: Array[String]): Unit = {
+    println(s"Simulation start time $currentDateTime")
 
-    val channelHalfLengths = linspace(a = 10D, b = 50D, length = 10).toArray
+    // initiate the bumps micro-structure for the channel wall
+    val bumpRadius = 5D
+    val bumpBilliardCell = getBumpsBilliardCell(bumpRadius)
+    println(s"Microstructure bump radius $bumpRadius")
 
-    // override default number of channel particles for DEMO
-    val numberOfChannelParticles = 500
+    // initiate the channel half length samples
+    val channelHalfLengths = linspace(a = halfLengthLower, b = halfLengthUpper, length = halfLengthNumPartitions)
+      .toArray
+    println(s"Generate mean exit time for $halfLengthNumPartitions total half lengths")
+    println(s"Minimum half length $halfLengthLower")
+    println(s"Maximum half length $halfLengthUpper")
+    println(s"Number of exit time samples for computing mean exit time $numberOfChannelParticles")
 
-    val bumpBilliardCell = getBumpsBilliardCell(10D)
+    val resultMeanExitTimes: Array[SimulationResults] = meanExitTimeForRange(
+      rangeOfChannelHalfLengths = channelHalfLengths,
+      microSurface = bumpBilliardCell
+    )
 
-    val meanExitTimes: Array[SimulationResults] = meanExitTimeForRange(channelHalfLengths, 1D, bumpBilliardCell, numberOfChannelParticles)
+    println(s"Exporting results to $outputPath...")
+    exportResultsToCSV(resultMeanExitTimes)
 
-    println(s"Number of total samples ${meanExitTimes.length}")
-
-    println(s"Exporting results to ${Global.outputPath}...")
-    exportResultsToCSV(meanExitTimes)
-    println("...export done!")
+    println("...simulation done!")
+    System.exit(0)
   }
 
 }

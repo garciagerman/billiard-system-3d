@@ -1,12 +1,18 @@
 package Common
 
-import breeze.linalg.DenseVector
-
-import java.util.concurrent.Executors
+import breeze.linalg._
 import scala.concurrent._
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
 import com.typesafe.config.{Config, ConfigFactory}
 
 object Global {
+
+  val currentDateTime: String = DateTimeFormatter
+    .ofPattern("yyyy_MM_dd_HH_mm")
+    .format(LocalDateTime.now)
+
   val conf: Config = ConfigFactory.load("application")
 
   // implicit execution context
@@ -28,10 +34,15 @@ object Global {
   val maxBilliardCellBumpHeight: Double = conf.getDouble("billiard_cell.bump_height")
 
   // default channel radius
-  val defaultChannelRadius: Double = conf.getDouble("cylindrical_channel.radius")
+  val channelRadius: Double = conf.getDouble("cylindrical_channel.radius")
 
   // default number of particles entering the billiard (sample size used to compute mean exit time)
-  val defaultNumberOfChannelParticles: Int = conf.getInt("cylindrical_channel.particle_samples")
+  val numberOfChannelParticles: Int = conf.getInt("cylindrical_channel.particle_samples")
+
+  // specifications for sampling of the interval [min half len, max half len]
+  val halfLengthLower: Double = conf.getDouble("cylindrical_channel.min_half_len")
+  val halfLengthUpper: Double = conf.getDouble("cylindrical_channel.max_half_len")
+  val halfLengthNumPartitions: Int = conf.getInt("cylindrical_channel.half_len_num_partitions")
 
   // i, j, k basis vectors
   val jBase: DenseVector[Double] = DenseVector(0D, 1D, 0D)
