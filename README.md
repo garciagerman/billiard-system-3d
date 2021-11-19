@@ -10,9 +10,11 @@
 
 ## Option Two: Scala build tool (sbt)
 
-- Install sbt 1.4.7 and Scala 2.13.4 (or check they are installed)
+- Install sbt 1.4.7
 - Clone this repo and navigate to source folder
 - Use `sbt test` to run the unit tests
 - Use `sbt clean assembly` to compile the code
 - JAR file is will be located in `target\scala-2.13\` and will be named `billiard-system-3d-assembly-{versionNo}.jar`
-- Use `scala billiard-system-3d-assembly-{versionNo}.jar` to execute the JAR file
+- To execute the JAR file
+  1. if Scala 2.13.4 is available: `scala path/to/jar/file.jar`
+  2. if Java 8 or higher is available: `java -jar path/to/jar/file.jar`
