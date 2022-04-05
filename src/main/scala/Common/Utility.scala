@@ -29,9 +29,9 @@ object Utility {
   def randomSampleEnteringDirections: DenseVector[Double] = {
     import scala.util.Random
 
-    val x: Double = Random.between(-1D,1D)
-    val y: Double = Random.between(-1D,1D)
-    val z: Double = Random.between(-1D,0D)
+    val x: Double = Random.nextGaussian()
+    val y: Double = Random.nextGaussian()
+    val z: Double = {val s = Random.nextGaussian(); if (s < 0) s else (-1D)*s}
 
     val entryVector: DenseVector[Double] = DenseVector(x,y,z)
     val entryVectorNorm: Double = norm(entryVector)
