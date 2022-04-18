@@ -8,6 +8,8 @@ import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, linspace}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Try
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 object ExitTimeExperiment {
@@ -22,7 +24,7 @@ object ExitTimeExperiment {
   def exportResultsToCSV(simulationData: Array[SimulationResults]): Unit = {
     import java.io.File
 
-    val outputFileName: String = outputPath + s"\\mean_exit_time_results_$currentDateTime.csv"
+    val outputFileName: String = s"mean_exit_time_results_$currentDateTime.csv"
 
     val dataAsMatrix: DenseMatrix[Double] = DenseMatrix(
       simulationData
@@ -110,6 +112,7 @@ object ExitTimeExperiment {
       .toArray
 
     val successCount = rawExitTimes.length.toDouble
+    println(s"...done with chan. len. ${channel.channelHalfLength}")
 
     rawExitTimes.sum / successCount
   }
@@ -130,7 +133,6 @@ object ExitTimeExperiment {
 
     val futureMeanExitTimes: Array[Future[SimulationResults]] = rangeOfChannelHalfLengths.map {
           halfLen => Future {
-
             val cylinder = new CylindricalChannel(channelHalfLength = halfLen, channelRadius = channelRadius, microSurface)
             val meanExitTimeOfParticles: Double = getSingleMeanExitTimeFromChannel(cylinder, numberOfChannelParticles)
 
@@ -149,10 +151,10 @@ object ExitTimeExperiment {
    * Main Executable to perform a sequence of simulations
    */
   def main(args: Array[String]): Unit = {
-    println(s"Simulation start time $currentDateTime")
+    println(s"Simulation start time $currentDateTime...")
 
     // initiate the bumps micro-structure for the channel wall
-    val bumpRadius = 5D
+    val bumpRadius = args.head.toDouble
     val bumpBilliardCell = getBumpsBilliardCell(bumpRadius)
     println(s"Microstructure bump radius $bumpRadius")
 
@@ -172,7 +174,8 @@ object ExitTimeExperiment {
     println(s"Exporting results to $outputPath...")
     exportResultsToCSV(resultMeanExitTimes)
 
-    println("...simulation done!")
+    val endDateTime = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm").format(LocalDateTime.now)
+    println(s"...simulation end time: $endDateTime")
     System.exit(0)
   }
 
