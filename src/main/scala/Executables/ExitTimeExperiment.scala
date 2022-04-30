@@ -171,7 +171,7 @@ object ExitTimeExperiment {
       microSurface = bumpBilliardCell
     )
 
-    println(s"Exporting results to $outputPath...")
+    println(s"Exporting results to...")
     exportResultsToCSV(resultMeanExitTimes)
 
     val endDateTime = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm").format(LocalDateTime.now)

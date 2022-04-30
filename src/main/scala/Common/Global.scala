@@ -22,9 +22,7 @@ object Global {
 
   // default numerical precision
   val defaultNumericalPrecision: Double = conf.getDouble("numerical_precision")
-
-  val outputPath: String = conf.getString("output_path")
-
+  
   // max collisions allowed within a billiard cell
   val maxBilliardCellCollisions: Int = conf.getInt("billiard_cell.max_collisions")
 
